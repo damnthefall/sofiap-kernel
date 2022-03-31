@@ -1,0 +1,126 @@
+&qupv3_se2_i2c {
+	status = "disabled";
+};
+
+&qupv3_se2_spi_sleep {
+	/delete-node/ configs;
+	configs {
+		pins = "gpio6", "gpio7", "gpio9";
+		drive-strength = <6>;
+		bias-pull-up;
+	};
+};
+
+&qupv3_se2_spi {
+	status = "ok";
+	focaltech@0 {
+		compatible = "focaltech,fts";
+		reg = <0x0>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <88 0x02>;
+		spi-max-frequency=<10000000>;
+		pinctrl-names = "pmx_ts_active","pmx_ts_suspend","pmx_ts_release";
+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+		pinctrl-2 = <&ts_release>;
+		focaltech,name = "ft8009";
+		focaltech,family-id = <0xf0>;
+		focaltech,reset-gpio = <&tlmm 87 0x01>;
+		focaltech,irq-gpio = <&tlmm 88 0x02>;
+		focaltech,display-coords = <0 0 719 1559>;
+		focaltech,max-touch-number = <10>;
+		focaltech,panel-supplier = "boe";
+		focaltech,always_on_vio;
+		status = "/chosen", "mmi,panel_name", "boe_ft8009_hd_vid";
+	};
+
+	novatek@1 {
+		compatible = "novatek,NVT-ts-spi";
+		reg = <0x1>;
+
+		spi-max-frequency = <9600000>;	//4800000,9600000,15000000,19200000
+		novatek,reset-gpio = <&tlmm 87 0x01>;
+		novatek,irq-gpio = <&tlmm 88 0x2001>;
+
+		/* 672A, 525B, 675, 526 */
+		novatek,swrst-n8-addr = <0x03F0FE>;
+		novatek,spi-rd-fast-addr = <0x03F310>;
+		novatek,usb_charger;
+		status = "/chosen", "mmi,panel_name", "tm_nt36526_hd_vid";
+	};
+
+	himax@2 {
+		compatible = "himax,hxcommon";
+		reg = <0x0>;
+		spi-max-frequency = <10000000>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <88 0x02>;
+		himax,panel-coords = <0 720 0 1560>;
+		himax,display-coords = <0 720 0 1560>;
+		himax,irq-gpio = <&tlmm 88 0x02>;
+		himax,rst-gpio = <&tlmm 87 0x01>;
+		himax,touch_info = <34 16 0 720 1560 10 0 1>;
+		himax,vdd_1v8_always_on;
+		report_type = <1>;
+		status = "/chosen", "mmi,panel_name", "inx_hx83104a_hd_vid";
+	};
+
+	himax@3 {
+		compatible = "himax,hxcommon";
+		reg = <0x0>;
+		spi-max-frequency = <10000000>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <88 0x02>;
+		himax,panel-coords = <0 720 0 1560>;
+		himax,display-coords = <0 720 0 1560>;
+		himax,irq-gpio = <&tlmm 88 0x02>;
+		himax,rst-gpio = <&tlmm 87 0x01>;
+		himax,touch_info = <34 16 0 720 1560 10 0 1>;
+		himax,vdd_1v8_always_on;
+		report_type = <1>;
+		status = "/chosen", "mmi,panel_name", "inxr_hx83104a_hd_vid";
+	};
+
+	focaltech@4 {
+		compatible = "focaltech,fts";
+		reg = <0x0>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <88 0x02>;
+		spi-max-frequency=<10000000>;
+		pinctrl-names = "pmx_ts_active","pmx_ts_suspend","pmx_ts_release";
+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+		pinctrl-2 = <&ts_release>;
+		focaltech,name = "ft8009";
+		focaltech,family-id = <0xf0>;
+		focaltech,reset-gpio = <&tlmm 87 0x01>;
+		focaltech,irq-gpio = <&tlmm 88 0x02>;
+		focaltech,display-coords = <0 0 719 1559>;
+		focaltech,max-touch-number = <10>;
+		focaltech,panel-supplier = "boev";
+		focaltech,always_on_vio;
+		status = "/chosen", "mmi,panel_name", "boev_ft8009_hd_vid";
+	};
+
+	focaltech@5 {
+		compatible = "focaltech,fts";
+		reg = <0x0>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <88 0x02>;
+		spi-max-frequency=<10000000>;
+		pinctrl-names = "pmx_ts_active","pmx_ts_suspend","pmx_ts_release";
+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+		pinctrl-2 = <&ts_release>;
+		focaltech,name = "ft8009";
+		focaltech,family-id = <0xf0>;
+		focaltech,reset-gpio = <&tlmm 87 0x01>;
+		focaltech,irq-gpio = <&tlmm 88 0x02>;
+		focaltech,display-coords = <0 0 719 1559>;
+		focaltech,max-touch-number = <10>;
+		focaltech,panel-supplier = "dj";
+		focaltech,always_on_vio;
+		status = "/chosen", "mmi,panel_name", "dj_ft8009_hd_vid";
+	};
+};
+

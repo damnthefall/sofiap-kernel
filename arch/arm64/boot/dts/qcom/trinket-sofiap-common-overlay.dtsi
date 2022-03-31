@@ -1,0 +1,331 @@
+/* Copyright (c) 2018, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+#include "trinket-moto-common-overlay.dtsi"
+#include "sofia-panel.dtsi"
+#include "trinket-sofiap-audio-overlay.dtsi"
+#include "trinket-sofiap-touch-overlay.dtsi"
+#include "trinket-sofiap-camera-overlay.dtsi"
+#include "trinket-sofiap-haptic-overlay.dtsi"
+#include "trinket-sofiap-fps-overlay.dtsi"
+#include "trinket-sofiap-nfc-overlay.dtsi"
+#include "trinket-sofiap-sensor-overlay.dtsi"
+#include "trinket-sofiap-fmr-overlay.dtsi"
+
+&usb_qmp_phy {
+	status = "disabled";
+};
+
+&usb0 {
+	dwc3@4e00000 {
+		usb-phy = <&qusb_phy0>, <&usb_nop_phy>;
+		maximum-speed = "high-speed";
+	};
+};
+
+&pmi632_rgb {
+	red {
+		label = "charging";
+	};
+};
+
+&mtp_batterydata {
+	df-serialnum = "SB18C57819";
+	#include "qg-batterydata-kx50-amperex-4000mah.dtsi"
+	#include "qg-batterydata-kx50-swd-4000mah.dtsi"
+};
+
+&pmi632_qg {
+	qcom,battery-data = <&mtp_batterydata>;
+	qcom,qg-iterm-ma = <400>;
+};
+
+&pmi632_charger {
+	qcom,battery-data = <&mtp_batterydata>;
+	mmi,ext-ovp-greater-12v;
+};
+
+&pmi632_mmi {
+	qcom,mmi-temp-zones = <0 4200 776 0>,
+				<10 4200 1940 776>,
+				<15 0 1940 1940>,
+				<45 4200 3600 2500>,
+				<60 4200 1940 0>;
+	qcom,iterm-ma = <194>;
+};
+
+&soc {
+	qcom,tz_gpio {
+		compatible = "qcom,tz_gpio";
+		tlmm-tz = <30>,
+			<31>,
+			<32>,
+			<33>;
+	};
+};
+
+&key_vol_up_default {
+	pins = "gpio1";
+	power-source = <0>;
+};
+
+&tlmm {
+    tps61280_en_default: tps61280_en_default {
+		mux {
+				pins = "gpio59";
+		};
+		config {
+				pins = "gpio59";
+				drive_strength = <16>;
+				output-high;
+		};
+    };
+
+	laser_xsdn_active: laser_xsdn_active {
+		mux {
+			pins = "gpio118";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio118";
+			drive-strength = <2>;
+			bias-disable;
+		};
+	};
+
+	laser_xsdn_suspend: laser_xsdn_suspend {
+		mux {
+			pins = "gpio118";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio118";
+			drive-strength = <2>;
+			bias-pull-down; /* PULL DOWN */
+		};
+	};
+
+	laser_int_active: laser_int_active {
+		mux {
+			pins = "gpio132";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio132";
+			drive-strength = <2>;
+			bias-pull-up; /* PULL UP */
+		};
+	};
+
+	laser_int_suspend: laser_int_suspend {
+		mux {
+			pins = "gpio132";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio132";
+			drive-strength = <2>;
+			bias-pull-down; /* PULL DOWN */
+		};
+	};
+};
+
+&pmi632_gpios {
+	tof_supply_en {
+		tof_supply_en_default: tof_supply_en_default {
+			pins = "gpio7";
+			function = "func1";
+			output-enable;
+			drive-push-pull;
+		};
+	};
+};
+
+&qupv3_se0_spi {
+	status = "disabled";
+};
+
+&qupv3_se3_i2c {
+	status = "ok";
+	stmvl53l1: stmvl53l1@29 {
+		/* Enable once the matching driver is ported completely */
+		status = "ok";
+		compatible = "st,stmvl53l1";
+		reg = <0x29>;
+		pwren-gpio = <&pmi632_gpios 7 0>;
+		gpios = <&tlmm 118 0>, <&tlmm 132 0>;
+		qcom,gpio-reset = <0>;
+		qcom,gpio-req-tbl-num = <0 1>;
+		qcom,gpio-req-tbl-flags = <0 1>;
+		qcom,gpio-req-tbl-label ="TOF_XSHUTDOWN","TOF_INT";
+		pinctrl-names = "laser_default", "laser_suspend";
+		pinctrl-0 = <&laser_xsdn_active &laser_int_active &tof_supply_en_default>;
+		pinctrl-1 = <&laser_xsdn_suspend &laser_int_suspend>;
+		st,sensorthreshold = <60 65>;
+		st,xtalkval = <0x9C4 0xFACD 0x0>;
+		force-device-on-en-default;
+	};
+};
+
+&qupv3_se1_i2c {
+	status = "ok";
+	tps61280@75 {
+		compatible = "ti,tps61280";
+		reg = <0x75>;
+		ti,config = <0x0D>;
+		ti,vout-floor = <0x17>;
+		ti,vout-roof = <0x1F>;
+		ti,ilim = <0x0F>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&tps61280_en_default>;
+	};
+};
+
+&qupv3_se2_i2c {
+	synaptics_tcm@20 {
+		status = "disabled";
+	};
+};
+
+&pm8008_8 {
+	status = "disabled";
+};
+
+&pm8008_9 {
+	status = "disabled";
+};
+
+&soc {
+	gpio_keys {
+		vol_up {
+			gpios = <&pm6125_gpios 1 GPIO_ACTIVE_LOW>;
+		};
+	};
+};
+
+&thermal_zones {
+	rf-pa0-therm-adc {
+		status = "disabled";
+	};
+
+	quiet-therm-step {
+		status = "disabled";
+	};
+
+	pa_therm0 {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-has-hwmon;
+		thermal-governor = "user_space";
+		thermal-sensors = <&pm6125_adc_tm ADC_AMUX_THM1_PU2>;
+		trips {
+			active-config0 {
+				temperature = <125000>;
+				hysteresis = <1000>;
+				type = "passive";
+			};
+		};
+	};
+
+	quiet-therm-adc {
+		status = "disabled";
+	};
+	quiet_therm {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-has-hwmon;
+		thermal-governor = "user_space";
+		thermal-sensors = <&pm6125_adc_tm ADC_AMUX_THM2_PU2>;
+		trips {
+			active-config0 {
+				temperature = <125000>;
+				hysteresis = <1000>;
+				type = "passive";
+			};
+		};
+	};
+
+	xo_therm {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-has-hwmon;
+		thermal-governor = "user_space";
+		thermal-sensors = <&pm6125_adc_tm ADC_XO_THERM_PU2>;
+		trips {
+			active-config0 {
+				temperature = <125000>;
+				hysteresis = <1000>;
+				type = "passive";
+			};
+		};
+	};
+
+	conn-therm-adc {
+		status = "disabled";
+	};
+
+	skin-therm-adc {
+		status = "disabled";
+	};
+
+	chg_therm {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-has-hwmon;
+		thermal-governor = "user_space";
+		thermal-sensors = <&pmi632_adc_tm ADC_GPIO2_PU2>;
+		trips {
+			active-config0 {
+				temperature = <125000>;
+				hysteresis = <1000>;
+				type = "passive";
+			};
+		};
+	};
+
+	camera-ftherm-adc {
+		status = "disabled";
+	};
+	msm_therm {
+		polling-delay-passive = <0>;
+		polling-delay = <5000>;
+		thermal-has-hwmon;
+		thermal-governor = "user_space";
+		thermal-sensors = <&pm6125_adc_tm_iio ADC_GPIO1_PU2>;
+		trips {
+			active-config0 {
+				temperature = <125000>;
+				hysteresis = <1000>;
+				type = "passive";
+			};
+		};
+	};
+
+	emmc-ufs-therm-adc {
+		status = "disabled";
+	};
+};
+
+&spmi_bus {
+	qcom,pm6125@0 {
+		qpnp-power-on-mmi@800 {
+			compatible = "qcom,qpnp-power-on-mmi";
+			status = "okay";
+			interrupts = <0x0 0x8 0x3 IRQ_TYPE_NONE>;
+			interrupt-names = "kpdpwr-bark";
+		};
+	};
+};

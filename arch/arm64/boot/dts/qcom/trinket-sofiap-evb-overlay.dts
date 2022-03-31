@@ -1,0 +1,40 @@
+/* Copyright (c) 2018, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/clock/qcom,gcc-trinket.h>
+#include "trinket-sofiap-common-overlay.dtsi"
+#include "trinket-sofiap-audio-cooke.dtsi"
+
+/ {
+	model = "sofiap";
+	compatible = "qcom,trinket-sofiap", "qcom,trinket-moto", "qcom,trinket";
+	qcom,msm-id = <394 0x0>;
+	qcom,board-id = <0x47 0xA100>;
+};
+
+&et520 {
+	egistec,gpio_ldo1p8_en = <&tlmm 128 0x0>;
+};
+
+&fpc {
+	pinctrl-0 = <&ldo18_en_active &ldo33_en_active &int_active &rst_active>;
+	pinctrl-1 = <&ldo18_en_suspend &ldo33_en_suspend &int_suspend &rst_suspend>;
+};
+
+&stmvl53l1 {
+        /* Disable once the matching driver is ported completely */
+        status = "disabled";
+};
+
